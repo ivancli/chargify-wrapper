@@ -20,11 +20,11 @@ use Invigor\Chargify\Models\Transaction;
  */
 class Chargify
 {
-    public $chargify;
+    protected $app;
 
-    public function __construct($chargify)
+    public function __construct($app)
     {
-        $this->chargify = $chargify;
+        $this->app = $app;
     }
 
     public function component($id = null)
@@ -67,7 +67,7 @@ class Chargify
         return new Site($id);
     }
 
-    public function subscription($id = null)
+    public static function subscription($id = null)
     {
         return new Subscription($id);
     }

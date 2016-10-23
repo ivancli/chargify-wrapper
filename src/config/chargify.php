@@ -17,6 +17,8 @@ return [
     'api_password' => env('CHARGIFY_API_PASSWORD', 'x'),
 
     //the domain of Chargify account
-    'api_domain' => env('CHARGIFY_API_DOMAIN')
+    'api_domain' => env('CHARGIFY_API_DOMAIN'),
 
+    //the share key provided in Chargify settings used to generate links
+    'api_share_key' => env("CHARGIFY_API_SHARE_KEY"),
 ];

@@ -1,4 +1,6 @@
 <?php
+namespace Invigor\Chargify;
+
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -10,6 +12,14 @@ use Illuminate\Support\ServiceProvider;
 class ChargifyServiceProvider extends ServiceProvider
 {
     protected $defer = false;
+
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__ . '/../config/chargify.php' => config_path('chargify.php'),
+        ]);
+    }
+
     /**
      * Register the service provider.
      *
@@ -17,6 +27,13 @@ class ChargifyServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // TODO: Implement register() method.
+        $this->registerChargify();
+    }
+
+    private function registerChargify()
+    {
+        $this->app->bind('chargify', function ($app) {
+            return new Chargify($app);
+        });
     }
 }
