@@ -51,69 +51,9 @@ class Subscription
     protected $credit_card;
     protected $bank_account;
 
-    public function __construct($id = null)
+    public function __construct()
     {
-        if (!is_null($subscription = $this->getSubscription($id))) {
-            foreach ($subscription as $key => $value) {
-                if (property_exists($this, $key)) {
-                    $this->$key = $value;
-                }
-            }
-        }
-    }
 
-    private function getSubscription($id)
-    {
-        $url = config('chargify.api_domain') . "subscriptions/$id.json";
-        $subscription = $this->get($url);
-        if (!is_null($subscription)) {
-            return $subscription->subscription;
-        } else {
-            return null;
-        }
-    }
-
-    public static function all()
-    {
-//        if (config('chargify.caching.enable') == true) {
-//            return Cache::remember('chargify.subscriptions.all', config('chargify.caching.ttl'), function () {
-//                return (new static)->_all();
-//            });
-//        } else {
-            return (new static)->_all();
-//        }
-    }
-
-    private function _all()
-    {
-        $url = config('chargify.api_domain') . "subscriptions.json";
-        $subscriptions = $this->get($url);
-        if (is_array($subscriptions)) {
-            $subscriptions = array_pluck($subscriptions, 'subscription');
-            $output = array();
-            foreach ($subscriptions as $subscription) {
-                $output[] = (new static)->_set($subscription);
-            }
-
-            return $output;
-        } else {
-            return array();
-        }
-    }
-
-    private function _set($input_subscription)
-    {
-        $start = microtime();
-
-        //the following line is taking too much time
-        foreach ($input_subscription as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-        $end = microtime();
-        dump($end - $start);
-        return $this;
     }
 
     protected function bank_account()

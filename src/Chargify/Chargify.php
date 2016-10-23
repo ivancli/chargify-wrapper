@@ -1,6 +1,7 @@
 <?php
 namespace Invigor\Chargify;
 
+use Invigor\Chargify\Controllers\SubscriptionController;
 use Invigor\Chargify\Models\Component;
 use Invigor\Chargify\Models\Coupon;
 use Invigor\Chargify\Models\CouponSubCode;
@@ -67,13 +68,9 @@ class Chargify
         return new Site($id);
     }
 
-    public static function subscription($id = null)
+    public static function subscription()
     {
-        if (is_null($id)) {
-            return new Subscription;
-        } else {
-            return new Subscription($id);
-        }
+        return new SubscriptionController();
     }
 
     public function transaction($id = null)
