@@ -69,7 +69,11 @@ class Chargify
 
     public static function subscription($id = null)
     {
-        return new Subscription($id);
+        if (is_null($id)) {
+            return new Subscription;
+        } else {
+            return new Subscription($id);
+        }
     }
 
     public function transaction($id = null)

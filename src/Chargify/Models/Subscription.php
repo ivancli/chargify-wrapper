@@ -87,13 +87,12 @@ class Subscription
     private function _all()
     {
         $url = config('chargify.api_domain') . "subscriptions.json";
-        $subscriptions = (new static)->get($url);
+        $subscriptions = $this->get($url);
         if (is_array($subscriptions)) {
             $subscriptions = array_pluck($subscriptions, 'subscription');
             $output = array();
             foreach ($subscriptions as $subscription) {
-                $output[] = $this->_set($subscription);
-//                $output[] = $subscription;
+                $output[] = (new static)->_set($subscription);
             }
 
             return $output;
@@ -107,17 +106,14 @@ class Subscription
         $start = microtime();
 
         //the following line is taking too much time
-        $subscription = new static();
-        dump($input_subscription);
-//        foreach ($input_subscription as $key => $value) {
-//            if (property_exists($subscription, $key)) {
-//                $subscription->$key = $value;
-//            }
-//        }
+        foreach ($input_subscription as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
+        }
         $end = microtime();
         dump($end - $start);
-
-        return $subscription;
+        return $this;
     }
 
     protected function bank_account()
