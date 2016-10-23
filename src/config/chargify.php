@@ -6,8 +6,13 @@
  * Time: 1:02 AM
  */
 return [
+
     'caching' => array(
+
         'enable' => true,
+
+        'ttl' => 60 * 24
+
     ),
 
     //the api key generate in Chargify settings

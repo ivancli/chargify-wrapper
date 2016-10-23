@@ -2,6 +2,7 @@
 
 namespace Invigor\Chargify\Models;
 
+use Illuminate\Support\Facades\Cache;
 use Invigor\Chargify\Traits\Curl;
 
 /**
@@ -70,6 +71,53 @@ class Subscription
         } else {
             return null;
         }
+    }
+
+    public static function all()
+    {
+//        if (config('chargify.caching.enable') == true) {
+//            return Cache::remember('chargify.subscriptions.all', config('chargify.caching.ttl'), function () {
+//                return (new static)->_all();
+//            });
+//        } else {
+            return (new static)->_all();
+//        }
+    }
+
+    private function _all()
+    {
+        $url = config('chargify.api_domain') . "subscriptions.json";
+        $subscriptions = (new static)->get($url);
+        if (is_array($subscriptions)) {
+            $subscriptions = array_pluck($subscriptions, 'subscription');
+            $output = array();
+            foreach ($subscriptions as $subscription) {
+                $output[] = $this->_set($subscription);
+//                $output[] = $subscription;
+            }
+
+            return $output;
+        } else {
+            return array();
+        }
+    }
+
+    private function _set($input_subscription)
+    {
+        $start = microtime();
+
+        //the following line is taking too much time
+        $subscription = new static();
+        dump($input_subscription);
+//        foreach ($input_subscription as $key => $value) {
+//            if (property_exists($subscription, $key)) {
+//                $subscription->$key = $value;
+//            }
+//        }
+        $end = microtime();
+        dump($end - $start);
+
+        return $subscription;
     }
 
     protected function bank_account()
