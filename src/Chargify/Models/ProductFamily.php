@@ -9,6 +9,12 @@ namespace Invigor\Chargify\Models;
  */
 class ProductFamily
 {
+    public $id;
+    public $name;
+    public $description;
+    public $handle;
+    public $accounting_code;
+
     public function __construct($id = null)
     {
 

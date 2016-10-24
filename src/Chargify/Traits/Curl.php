@@ -8,17 +8,17 @@ namespace Invigor\Chargify\Traits;
  */
 trait Curl
 {
-    public function get($url, $headers = array())
+    public function _get($url, $headers = array())
     {
         $options = array(
             "headers" => $headers,
             "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password')
         );
-        $response = $this->sendCurl($url, $options);
+        $response = $this->__sendCurl($url, $options);
         return json_decode($response);
     }
 
-    public function post($url, $data, $headers = array())
+    public function _post($url, $data, $headers = array())
     {
         $options = array(
             "headers" => $headers,
@@ -26,11 +26,11 @@ trait Curl
             "fields" => json_encode($data),
             "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password')
         );
-        $response = $this->sendCurl($url, $options);
+        $response = $this->__sendCurl($url, $options);
         return json_decode($response);
     }
 
-    public function put($url, $data, $headers = array())
+    public function _put($url, $data, $headers = array())
     {
         $options = array(
             "headers" => $headers,
@@ -38,11 +38,11 @@ trait Curl
             "fields" => json_encode($data),
             "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password')
         );
-        $response = $this->sendCurl($url, $options);
+        $response = $this->__sendCurl($url, $options);
         return json_decode($response);
     }
 
-    public function delete($url, $data = null, $headers = array())
+    public function _delete($url, $data = null, $headers = array())
     {
         $options = array(
             "headers" => $headers,
@@ -50,12 +50,12 @@ trait Curl
             "fields" => json_encode($data),
             "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password')
         );
-        $response = $this->sendCurl($url, $options);
+        $response = $this->__sendCurl($url, $options);
         return json_decode($response);
     }
 
 
-    private function sendCurl($url, $options)
+    private function __sendCurl($url, $options)
     {
         $ch = curl_init();
         $curlHeaders = array(

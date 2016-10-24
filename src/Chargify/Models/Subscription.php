@@ -3,6 +3,8 @@
 namespace Invigor\Chargify\Models;
 
 use Illuminate\Support\Facades\Cache;
+use Invigor\Chargify\Controllers\CustomerController;
+use Invigor\Chargify\Controllers\ProductController;
 use Invigor\Chargify\Traits\Curl;
 
 /**
@@ -15,63 +17,80 @@ class Subscription
 {
     use Curl;
 
-    protected $id;
-    protected $activated_at;
-    protected $balance_in_cents;
-    protected $cancel_at_end_of_period;
-    protected $canceled_at;
-    protected $cancellation_message;
-    protected $coupon_code;
-    protected $created_at;
-    protected $current_period_started_at;
-    protected $current_period_ends_at;
-    protected $delayed_cancel_at;
-    protected $expires_at;
-    protected $next_assessment_at;
-    protected $payment_type;
-    protected $previous_state;
-    protected $product_price_in_cents;
-    protected $product_version_number;
-    protected $signup_payment_id;
-    protected $signup_revenue;
-    protected $state;
-    protected $total_revenue_in_cents;
-    protected $trial_started_at;
-    protected $trial_ended_at;
-    protected $updated_at;
-    protected $referral_code;
-    protected $current_billing_amount_in_cents;
-    protected $next_product_id;
-    protected $cancellation_method;
-    protected $payment_collection_method;
-    protected $snap_day;
+    public $id;
+    public $activated_at;
+    public $balance_in_cents;
+    public $cancel_at_end_of_period;
+    public $canceled_at;
+    public $cancellation_message;
+    public $coupon_code;
+    public $created_at;
+    public $current_period_started_at;
+    public $current_period_ends_at;
+    public $delayed_cancel_at;
+    public $expires_at;
+    public $next_assessment_at;
+    public $payment_type;
+    public $previous_state;
+    public $product_price_in_cents;
+    public $product_version_number;
+    public $signup_payment_id;
+    public $signup_revenue;
+    public $state;
+    public $total_revenue_in_cents;
+    public $trial_started_at;
+    public $trial_ended_at;
+    public $updated_at;
+    public $referral_code;
+    public $current_billing_amount_in_cents;
+    public $next_product_id;
+    public $cancellation_method;
+    public $payment_collection_method;
+    public $snap_day;
 
-    protected $customer;
-    protected $product;
-    protected $credit_card;
-    protected $bank_account;
+    public $customer_id;
+    public $product_id;
+    public $credit_card_id;
+    public $bank_account_id;
+
+    private $customerController;
+    private $productController;
 
     public function __construct()
     {
-
+        $this->customerController = new CustomerController;
+        $this->productController = new ProductController;
     }
 
-    protected function bank_account()
+    public function bank_account()
     {
 
     }
 
-    protected function credit_card()
+    public function credit_card()
     {
 
     }
 
-    protected function customer()
+    public function customer()
     {
-
+        return $this->customerController->get($this->customer_id);
     }
 
-    protected function product()
+    public function product()
+    {
+        return $this->productController->get($this->product_id);
+    }
+
+    public function save()
+    {
+        $clone = clone $this;
+//        $url = config('chargify.api_domain') . "subscriptions/{$id}.json";
+        dd(json_encode($clone));
+//        $this->_put($url, )
+    }
+
+    public function delete()
     {
 
     }
