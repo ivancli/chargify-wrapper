@@ -19,4 +19,14 @@ class ProductFamily
     {
 
     }
+
+    public function products()
+    {
+
+    }
+
+    public function components()
+    {
+        
+    }
 }

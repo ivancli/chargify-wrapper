@@ -84,10 +84,16 @@ class Subscription
 
     public function save()
     {
-        $clone = clone $this;
-//        $url = config('chargify.api_domain') . "subscriptions/{$id}.json";
-        dd(json_encode($clone));
-//        $this->_put($url, )
+        $url = config('chargify.api_domain') . "subscriptions/{$this->id}.json";
+        $data = new \stdClass();
+        $data->subscription = $this;
+        $subscription = $this->_put($url, json_encode($data));
+        if (!is_null($subscription)) {
+            $subscription = $subscription->subscription;
+            return $this;
+        } else {
+            return null;
+        }
     }
 
     public function delete()
