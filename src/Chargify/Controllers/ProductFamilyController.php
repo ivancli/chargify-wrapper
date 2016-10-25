@@ -42,17 +42,17 @@ class ProductFamilyController
     /**
      * load a product family by product family id
      *
-     * @param $id
+     * @param $product_family_id
      * @return ProductFamily|null
      */
-    public function get($id)
+    public function get($product_family_id)
     {
         if (config('chargify.caching.enable') == true) {
-            return Cache::remember("chargify.product_families.{$id}", config('chargify.caching.ttl'), function () use ($id) {
-                return $this->__get($id);
+            return Cache::remember("chargify.product_families.{$product_family_id}", config('chargify.caching.ttl'), function () use ($product_family_id) {
+                return $this->__get($product_family_id);
             });
         } else {
-            return $this->__get($id);
+            return $this->__get($product_family_id);
         }
     }
 
@@ -71,24 +71,24 @@ class ProductFamilyController
             }
             return $output;
         } else {
-            return array();
+            return $productFamilies;
         }
     }
 
     /**
-     * @param $id
+     * @param $product_family_id
      * @return ProductFamily|null
      */
-    private function __get($id)
+    private function __get($product_family_id)
     {
-        $url = config('chargify.api_domain') . "product_families/{$id}.json";
+        $url = config('chargify.api_domain') . "product_families/{$product_family_id}.json";
         $productFamily = $this->_get($url);
         if (!is_null($productFamily)) {
             $productFamily = $productFamily->product_family;
             $output = $this->__assign($productFamily);
             return $output;
         } else {
-            return null;
+            return $productFamily;
         }
     }
 

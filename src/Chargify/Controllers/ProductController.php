@@ -11,15 +11,20 @@ namespace Invigor\Chargify\Controllers;
 
 use Illuminate\Support\Facades\Cache;
 use Invigor\Chargify\Models\Product;
+use Invigor\Chargify\Traits\CacheFlusher;
 use Invigor\Chargify\Traits\Curl;
 
 class ProductController
 {
-    use Curl;
+    use Curl, CacheFlusher;
 
-    public function create()
+    public function create($product_family_id, $fields)
     {
-
+        $validator = $this->__validate($fields);
+        if ($validator['status'] != true) {
+            return $validator['errors'];
+        }
+        return $this->__create($product_family_id, $fields);
     }
 
     /**
@@ -41,17 +46,17 @@ class ProductController
     /**
      * Load a product by product id
      *
-     * @param $id
+     * @param $product_id
      * @return Product|null
      */
-    public function get($id)
+    public function get($product_id)
     {
         if (config('chargify.caching.enable') == true) {
-            return Cache::remember("chargify.products.{$id}", config('chargify.caching.ttl'), function () use ($id) {
-                return $this->__get($id);
+            return Cache::remember("chargify.products.{$product_id}", config('chargify.caching.ttl'), function () use ($product_id) {
+                return $this->__get($product_id);
             });
         } else {
-            return $this->__get($id);
+            return $this->__get($product_id);
         }
     }
 
@@ -75,16 +80,35 @@ class ProductController
     /**
      * Load all products by product family id
      *
-     * @param $id
+     * @param $product_family_id
      * @return array
      */
-    public function allByProductFamily($id){
+    public function allByProductFamily($product_family_id)
+    {
         if (config('chargify.caching.enable') == true) {
-            return Cache::remember("chargify.product_families.{$id}.products", config('chargify.caching.ttl'), function () use ($id) {
-                return $this->__allByProductFamily($id);
+            return Cache::remember("chargify.product_families.{$product_family_id}.products", config('chargify.caching.ttl'), function () use ($product_family_id) {
+                return $this->__allByProductFamily($product_family_id);
             });
         } else {
-            return $this->__allByProductFamily($id);
+            return $this->__allByProductFamily($product_family_id);
+        }
+    }
+
+    private function __create($product_family_id, $fields)
+    {
+        $url = config('chargify.api_url') . "product_families/{$product_family_id}/products.json";
+        $data = array(
+            "product" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $product = $this->_post($url, $data);
+        if (isset($product->product)) {
+            $output = $this->__assign($product->product);
+            $this->flushProducts();
+            $this->flushProductFamilyProducts($output->product_family_id);
+            return $output;
+        } else {
+            return $product;
         }
     }
 
@@ -103,24 +127,24 @@ class ProductController
             }
             return $output;
         } else {
-            return array();
+            return $products;
         }
     }
 
     /**
-     * @param $id
+     * @param $product_id
      * @return Product|null
      */
-    private function __get($id)
+    private function __get($product_id)
     {
-        $url = config('chargify.api_domain') . "products/{$id}.json";
+        $url = config('chargify.api_domain') . "products/{$product_id}.json";
         $product = $this->_get($url);
         if (!is_null($product)) {
             $product = $product->product;
             $output = $this->__assign($product);
             return $output;
         } else {
-            return null;
+            return $product;
         }
     }
 
@@ -142,12 +166,12 @@ class ProductController
     }
 
     /**
-     * @param $id
+     * @param $product_family_id
      * @return array
      */
-    private function __allByProductFamily($id)
+    private function __allByProductFamily($product_family_id)
     {
-        $url = config('chargify.api_domain') . "product_families/{$id}/products.json";
+        $url = config('chargify.api_domain') . "product_families/{$product_family_id}/products.json";
         $products = $this->_get($url);
         if (is_array($products)) {
             $products = array_pluck($products, 'product');
@@ -157,7 +181,7 @@ class ProductController
             }
             return $output;
         } else {
-            return array();
+            return $products;
         }
     }
 
@@ -182,5 +206,32 @@ class ProductController
             }
         }
         return $product;
+    }
+
+    private function __validate($fields)
+    {
+        $status = true;
+        $errors = [];
+        $required_fields = array(
+            "price_in_cents", "name", "handle", "description", "request_credit_card", "auto_create_signup_page"
+        );
+        if (!isset($fields['interval_unit']) || ($fields['interval_unit'] != "month" && $fields['interval_unit'] != "day")) {
+            $status = false;
+            $errors[] = "interval_unit needs to be either 'month' or 'day'.";
+        }
+        if (!isset($fields['interval']) || !is_int($fields['interval'])) {
+            $status = false;
+            $errors[] = "interval needs to be an integer.";
+        }
+        foreach ($required_fields as $required_field) {
+            if (!isset($fields[$required_field])) {
+                $status = false;
+                $errors[] = "{$required_field} is required.";
+            }
+        }
+        if ($status === false) {
+            return compact(['status', 'errors']);
+        }
+        return compact(['status']);
     }
 }

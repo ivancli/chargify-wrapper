@@ -2,6 +2,7 @@
 
 namespace Invigor\Chargify\Models;
 
+use Invigor\Chargify\Controllers\ComponentController;
 use Invigor\Chargify\Controllers\ProductController;
 
 /**
@@ -19,10 +20,12 @@ class ProductFamily
     public $accounting_code;
 
     private $productController;
+    private $componentController;
 
     public function __construct()
     {
         $this->productController = new ProductController;
+        $this->componentController = new ComponentController;
     }
 
     public function products()
@@ -32,6 +35,6 @@ class ProductFamily
 
     public function components()
     {
-
+        return $this->componentController->allByProductFamily($this->id);
     }
 }

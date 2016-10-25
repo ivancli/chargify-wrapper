@@ -18,24 +18,26 @@ trait Curl
         return json_decode($response);
     }
 
-    public function _post($url, $data, $headers = array())
+    public function _post($url, $data = null, $headers = array())
     {
         $options = array(
             "headers" => $headers,
             "method" => "post",
-            "fields" => json_encode($data),
+            "fields" => is_null($data) ? null : json_encode($data),
+            "data_type" => "json",
             "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password')
         );
         $response = $this->__sendCurl($url, $options);
         return json_decode($response);
     }
 
-    public function _put($url, $data, $headers = array())
+    public function _put($url, $data = null, $headers = array())
     {
         $options = array(
             "headers" => $headers,
             "method" => "put",
-            "fields" => json_encode($data),
+            "fields" => is_null($data) ? null : json_encode($data),
+            "data_type" => "json",
             "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password')
         );
         $response = $this->__sendCurl($url, $options);
@@ -46,9 +48,11 @@ trait Curl
     {
         $options = array(
             "headers" => $headers,
-            "method" => "put",
-            "fields" => json_encode($data),
-            "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password')
+            "method" => "delete",
+            "fields" => is_null($data) ? null : json_encode($data),
+            "data_type" => "json",
+            "userpass" => config('chargify.api_key') . ":" . config('chargify.api_password'),
+            "show_header" => 1
         );
         $response = $this->__sendCurl($url, $options);
         return json_decode($response);
@@ -89,7 +93,7 @@ trait Curl
                 default:
             }
         }
-        if (isset($options['fields'])) {
+        if (isset($options['fields']) && !is_null($options['fields'])) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $options['fields']);
             if (isset($options['data_type']) && $options['data_type'] == "json") {
                 $curlHeaders[] = 'Content-Type: application/json';
@@ -110,6 +114,7 @@ trait Curl
 
         $buffer = curl_exec($ch);
         curl_close($ch);
+
         unset($ch);
         return $buffer;
     }
