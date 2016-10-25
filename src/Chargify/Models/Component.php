@@ -34,4 +34,6 @@ class Component
     {
         return $this->productFamilyController->get($this->product_family_id);
     }
+
+    /*TODO create save and delete method*/
 }

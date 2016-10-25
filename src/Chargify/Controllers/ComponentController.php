@@ -10,13 +10,16 @@ namespace Invigor\Chargify\Controllers;
 
 use Illuminate\Support\Facades\Cache;
 use Invigor\Chargify\Models\Component;
+use Invigor\Chargify\Traits\CacheFlusher;
 use Invigor\Chargify\Traits\Curl;
 
 class ComponentController
 {
-    use Curl;
+    use Curl, CacheFlusher;
 
     /**
+     * Create a component within a product family
+     *
      * @param $product_family_id
      * @param $plural_kind - this variable should either be 'on_off_component', 'quantity_based_component' or 'metered_component'
      * @param $fields
@@ -31,6 +34,12 @@ class ComponentController
         return $this->__create($product_family_id, $plural_kind, $fields);
     }
 
+    /**
+     * Load all component by product family id
+     *
+     * @param $product_family_id
+     * @return array|mixed
+     */
     public function allByProductFamily($product_family_id)
     {
         if (config('chargify.caching.enable') == true) {
@@ -42,6 +51,12 @@ class ComponentController
         }
     }
 
+    /**
+     * Load all components by subscription id
+     *
+     * @param $subscription_id
+     * @return array|mixed
+     */
     public function allBySubscription($subscription_id)
     {
         if (config('chargify.caching.enable') == true) {
@@ -53,6 +68,13 @@ class ComponentController
         }
     }
 
+    /**
+     * Load a component by product family id
+     *
+     * @param $product_family_id
+     * @param $component_id
+     * @return Component|null
+     */
     public function getByProductFamily($product_family_id, $component_id)
     {
         if (config('chargify.caching.enable') == true) {
@@ -64,6 +86,13 @@ class ComponentController
         }
     }
 
+    /**
+     * load a component by subscription id
+     *
+     * @param $subscription_id
+     * @param $component_id
+     * @return Component|mixed
+     */
     public function getBySubscription($subscription_id, $component_id)
     {
         if (config('chargify.caching.enable') == true) {
@@ -75,6 +104,34 @@ class ComponentController
         }
     }
 
+    /**
+     * @param $product_family_id
+     * @param $plural_kind
+     * @param $fields
+     * @return Component|mixed
+     */
+    private function __create($product_family_id, $plural_kind, $fields)
+    {
+        $url_plural_kind = str_plural($plural_kind);
+        $url = config('chargify.api_url') . "product_families/{$product_family_id}/{$url_plural_kind}.json";
+        $data = array(
+            $plural_kind => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $component = $this->_post($url, $data);
+        if (isset($component->$plural_kind)) {
+            $output = $this->__assign($component->$plural_kind);
+            $this->flushComponentsByProductFamily($product_family_id);
+            return $output;
+        } else {
+            return $component;
+        }
+    }
+
+    /**
+     * @param $product_family_id
+     * @return array|mixed
+     */
     private function __allByProductFamily($product_family_id)
     {
         $url = config('chargify.api_domain') . "product_families/{$product_family_id}/components.json";
@@ -88,29 +145,6 @@ class ComponentController
             return $output;
         } else {
             return $components;
-        }
-    }
-
-    /**
-     * @param $product_family_id
-     * @param $plural_kind
-     * @param $fields
-     * @return Component|mixed
-     */
-    private function __create($product_family_id, $plural_kind, $fields)
-    {
-        /*TODO incomplete*/
-        $url = config('chargify.api_url') . "product_families/{$product_family_id}/{$plural_kind}.json";
-        $data = array(
-            "subscription" => $fields
-        );
-        $data = json_decode(json_encode($data), false);
-        $subscription = $this->_post($url, $data);
-        if (isset($subscription->subscription)) {
-            $output = $this->__assign($subscription->subscription);
-            return $output;
-        } else {
-            return $subscription;
         }
     }
 
@@ -156,6 +190,10 @@ class ComponentController
         }
     }
 
+    /**
+     * @param $input_component
+     * @return Component
+     */
     private function __assign($input_component)
     {
         $component = new Component;
@@ -167,18 +205,22 @@ class ComponentController
         return $component;
     }
 
+    /**
+     * @param $fields
+     * @return array
+     */
     private function __validate($fields)
     {
-        /*TODO incomplete*/
         $status = true;
         $errors = [];
-        if (!isset($fields['product_handle']) && !isset($fields['product_id'])) {
-            $status = false;
-            $errors[] = "product_handle or product_id is required";
-        }
-        if (!isset($fields['customer_attributes']) && !isset($fields['customer_id']) && !isset($fields['customer_reference'])) {
-            $status = false;
-            $errors[] = "please provide customer_attributes or customer_id or customer reference.";
+        $required_fields = array(
+            "name", "unit_name", "pricing_scheme", "prices"
+        );
+        foreach ($required_fields as $required_field) {
+            if (!isset($fields[$required_field])) {
+                $status = false;
+                $errors[] = "{$required_field} is required.";
+            }
         }
         if ($status === false) {
             return compact(['status', 'errors']);
