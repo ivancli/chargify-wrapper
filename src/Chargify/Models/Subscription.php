@@ -58,14 +58,12 @@ class Subscription
 
     private $customerController;
     private $productController;
-    private $subscriptionController;
     private $paymentProfileController;
 
     public function __construct()
     {
         $this->customerController = new CustomerController;
         $this->productController = new ProductController;
-        $this->subscriptionController = new SubscriptionController;
         $this->paymentProfileController = new PaymentProfileController;
     }
 
@@ -88,50 +86,5 @@ class Subscription
     public function product()
     {
         return $this->productController->get($this->product_id);
-    }
-
-    public function save()
-    {
-        $url = config('chargify.api_domain') . "subscriptions/{$this->id}.json";
-        $data = array(
-            "subscription" => $this
-        );
-        $data = json_decode(json_encode($data), false);
-        $subscription = $this->_put($url, json_encode($data));
-        if (isset($subscription->subscription)) {
-            $this->flushSubscriptionByCustomer($this->customer_id);
-            $this->flushSubscription($this->id);
-            return $this;
-        } else {
-            return null;
-        }
-    }
-
-    public function cancel($cancellation_message = "User action")
-    {
-        $url = config('chargify.api_domain') . "subscriptions/{$this->id}.json";
-        $data = array(
-            "subscription" => array(
-                "cancellation_message" => $cancellation_message,
-            )
-        );
-        $data = json_decode(json_encode($data), false);
-        $this->_delete($url, json_encode($data));
-        $this->flushSubscriptionByCustomer($this->customer_id);
-        $this->flushSubscription($this->id);
-        return true;
-    }
-
-    public function reactivate()
-    {
-        $url = config('chargify.api_domain') . "subscriptions/{$this->id}/reactivate.json";
-        $subscription = $this->_put($url);
-        if (isset($subscription->subscription)) {
-            $this->flushSubscriptionByCustomer($this->customer_id);
-            $this->flushSubscription($this->id);
-            return $this->subscriptionController->get($this->id);
-        } else {
-            return null;
-        }
     }
 }

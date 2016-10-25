@@ -59,6 +59,28 @@ class SubscriptionController
     }
 
     /**
+     * Update a subscription
+     *
+     * @param $subscription_id
+     * @param $fields
+     * @return Subscription|mixed
+     */
+    public function update($subscription_id, $fields)
+    {
+        return $this->__update($subscription_id, $fields);
+    }
+
+    public function cancel($subscription_id)
+    {
+        return $this->__cancel($subscription_id);
+    }
+
+    public function reactivate($subscription_id)
+    {
+        return $this->__reactivate($subscription_id);
+    }
+
+    /**
      * Load subscriptions in pagination
      *
      * @param int $offset
@@ -118,12 +140,57 @@ class SubscriptionController
         $data = json_decode(json_encode($data), false);
         $subscription = $this->_post($url, $data);
         if (isset($subscription->subscription)) {
-            $output = $this->__assign($subscription->subscription);
-            $this->flushSubscriptionByCustomer($output->customer_id);
-            return $output;
-        } else {
-            return $subscription;
+            $subscription = $this->__assign($subscription->subscription);
+            $this->flushSubscriptionByCustomer($subscription->customer_id);
         }
+        return $subscription;
+    }
+
+    /**
+     * @param $subscription_id
+     * @param $fields
+     * @return Subscription|mixed
+     */
+    private function __update($subscription_id, $fields)
+    {
+        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}.json";
+        $data = array(
+            "subscription" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $subscription = $this->_put($url, $data);
+        if (isset($subscription->subscription)) {
+            $subscription = $this->__assign($subscription->subscription);
+            $this->flushSubscriptionByCustomer($subscription->customer_id);
+            $this->flushSubscription($subscription->id);
+        }
+        return $subscription;
+    }
+
+    private function __cancel($subscription_id, $cancellation_message = "User action")
+    {
+        $url = config('chargify.api_domain') . "subscriptions/{$this->id}.json";
+        $data = array(
+            "subscription" => array(
+                "cancellation_message" => $cancellation_message,
+            )
+        );
+        $data = json_decode(json_encode($data), false);
+        $this->_delete($url, json_encode($data));
+        $this->flushSubscription($subscription_id);
+        return true;
+    }
+
+    private function __reactivate($subscription_id)
+    {
+        $url = config('chargify.api_domain') . "subscriptions/{$this->id}/reactivate.json";
+        $subscription = $this->_put($url);
+        if (isset($subscription->subscription)) {
+            $subscription = $this->__assign($subscription->subscription);
+            $this->flushSubscriptionByCustomer($subscription->customer_id);
+            $this->flushSubscription($subscription->id);
+        }
+        return $subscription;
     }
 
     /**
@@ -140,10 +207,8 @@ class SubscriptionController
         $subscriptionPreview = $this->_post($url, $data);
         if (isset($subscriptionPreview->subscription_preview)) {
             $subscriptionPreview = $subscriptionPreview->subscription_preview;
-            return $subscriptionPreview;
-        } else {
-            return $subscriptionPreview;
         }
+        return $subscriptionPreview;
     }
 
     /**
@@ -156,10 +221,8 @@ class SubscriptionController
         $renewalPreview = $this->_post($url);
         if (isset($renewalPreview->renewal_preview)) {
             $renewalPreview = $renewalPreview->renewal_preview;
-            return $renewalPreview;
-        } else {
-            return $renewalPreview;
         }
+        return $renewalPreview;
     }
 
 
@@ -198,11 +261,9 @@ class SubscriptionController
         $subscription = $this->_get($url);
         if (!is_null($subscription)) {
             $subscription = $subscription->subscription;
-            $output = $this->__assign($subscription);
-            return $output;
-        } else {
-            return $subscription;
+            $subscription = $this->__assign($subscription);
         }
+        return $subscription;
     }
 
     /**
