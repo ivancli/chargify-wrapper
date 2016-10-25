@@ -12,6 +12,7 @@ use Invigor\Chargify\Controllers\ProductFamilyController;
  */
 class Product
 {
+    public $id;
     public $price_in_cents;
     public $name;
     public $handle;

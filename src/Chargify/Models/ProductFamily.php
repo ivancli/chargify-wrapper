@@ -1,6 +1,9 @@
 <?php
 
 namespace Invigor\Chargify\Models;
+
+use Invigor\Chargify\Controllers\ProductController;
+
 /**
  * Created by PhpStorm.
  * User: Ivan
@@ -15,18 +18,20 @@ class ProductFamily
     public $handle;
     public $accounting_code;
 
-    public function __construct($id = null)
-    {
+    private $productController;
 
+    public function __construct()
+    {
+        $this->productController = new ProductController;
     }
 
     public function products()
     {
-
+        return $this->productController->allByProductFamily($this->id);
     }
 
     public function components()
     {
-        
+
     }
 }

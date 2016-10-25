@@ -16,26 +16,20 @@ class SubscriptionController
 {
     use Curl;
 
-    public function __construct()
+    public function create()
     {
 
     }
 
-    public function getSubscription($id)
-    {
-        $url = config('chargify.api_domain') . "subscriptions/$id.json";
-        $subscription = $this->_get($url);
-        if (!is_null($subscription)) {
-            return $subscription->subscription;
-        } else {
-            return null;
-        }
-    }
-
+    /**
+     * Load all subscriptions
+     *
+     * @return array
+     */
     public function all()
     {
         if (config('chargify.caching.enable') == true) {
-            return Cache::remember('chargify.subscriptions.all', config('chargify.caching.ttl'), function () {
+            return Cache::remember('chargify.subscriptions', config('chargify.caching.ttl'), function () {
                 return $this->__all();
             });
         } else {
@@ -43,6 +37,12 @@ class SubscriptionController
         }
     }
 
+    /**
+     * Load a subscription by subscription id
+     *
+     * @param $id
+     * @return Subscription|null
+     */
     public function get($id)
     {
         if (config('chargify.caching.enable') == true) {
@@ -54,6 +54,26 @@ class SubscriptionController
         }
     }
 
+    /**
+     * load all subscriptions by customer id
+     *
+     * @param $id
+     * @return array
+     */
+    public function allByCustomer($id)
+    {
+        if (config('chargify.caching.enable') == true) {
+            return Cache::remember("chargify.customers.{$id}.subscriptions", config('chargify.caching.ttl'), function () use ($id) {
+                return $this->__allByCustomer($id);
+            });
+        } else {
+            return $this->__allByCustomer($id);
+        }
+    }
+
+    /**
+     * @return array
+     */
     private function __all()
     {
         $url = config('chargify.api_domain') . "subscriptions.json";
@@ -70,6 +90,10 @@ class SubscriptionController
         }
     }
 
+    /**
+     * @param $id
+     * @return Subscription|null
+     */
     private function __get($id)
     {
         $url = config('chargify.api_domain') . "subscriptions/{$id}.json";
@@ -83,6 +107,30 @@ class SubscriptionController
         }
     }
 
+    /**
+     * @param $id
+     * @return array
+     */
+    private function __allByCustomer($id)
+    {
+        $url = config('chargify.api_domain') . "customers/{$id}/subscriptions.json";
+        $subscriptions = $this->_get($url);
+        if (is_array($subscriptions)) {
+            $subscriptions = array_pluck($subscriptions, 'subscription');
+            $output = array();
+            foreach ($subscriptions as $subscription) {
+                $output[] = $this->__assign($subscription);
+            }
+            return $output;
+        } else {
+            return array();
+        }
+    }
+
+    /**
+     * @param $input_subscription
+     * @return Subscription
+     */
     private function __assign($input_subscription)
     {
         $subscription = new Subscription;

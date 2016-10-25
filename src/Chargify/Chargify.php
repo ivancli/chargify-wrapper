@@ -1,17 +1,15 @@
 <?php
 namespace Invigor\Chargify;
 
+use Invigor\Chargify\Controllers\ComponentController;
+use Invigor\Chargify\Controllers\CouponController;
+use Invigor\Chargify\Controllers\CustomerController;
+use Invigor\Chargify\Controllers\InvoiceController;
+use Invigor\Chargify\Controllers\ProductController;
+use Invigor\Chargify\Controllers\ProductFamilyController;
+use Invigor\Chargify\Controllers\SiteController;
 use Invigor\Chargify\Controllers\SubscriptionController;
-use Invigor\Chargify\Models\Component;
-use Invigor\Chargify\Models\Coupon;
-use Invigor\Chargify\Models\CouponSubCode;
-use Invigor\Chargify\Models\Customer;
-use Invigor\Chargify\Models\Invoice;
-use Invigor\Chargify\Models\Product;
-use Invigor\Chargify\Models\ProductFamily;
-use Invigor\Chargify\Models\Site;
-use Invigor\Chargify\Models\Subscription;
-use Invigor\Chargify\Models\Transaction;
+use Invigor\Chargify\Controllers\TransactionController;
 
 /**
  * Created by PhpStorm.
@@ -28,44 +26,39 @@ class Chargify
         $this->app = $app;
     }
 
-    public function component($id = null)
+    public static function component()
     {
-        return new Component($id);
+        return new ComponentController();
     }
 
-    public function coupon($id = null)
+    public static function coupon()
     {
-        return new Coupon($id);
+        return new CouponController();
     }
 
-    public function couponSubCode($id = null)
+    public static function customer()
     {
-        return new CouponSubCode($id);
+        return new CustomerController();
     }
 
-    public function customer($id = null)
+    public static function invoice()
     {
-        return new Customer($id);
+        return new InvoiceController();
     }
 
-    public function invoice($id = null)
+    public static function product()
     {
-        return new Invoice($id);
+        return new ProductController();
     }
 
-    public function product($id = null)
+    public static function productFamily()
     {
-        return new Product($id);
+        return new ProductFamilyController();
     }
 
-    public function productFamily($id = null)
+    public static function site()
     {
-        return new ProductFamily($id);
-    }
-
-    public function site($id = null)
-    {
-        return new Site($id);
+        return new SiteController();
     }
 
     public static function subscription()
@@ -73,8 +66,8 @@ class Chargify
         return new SubscriptionController();
     }
 
-    public function transaction($id = null)
+    public static function transaction()
     {
-        return new Transaction($id);
+        return new TransactionController();
     }
 }

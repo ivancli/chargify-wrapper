@@ -96,7 +96,7 @@ class Subscription
         }
     }
 
-    public function delete()
+    public function cancel()
     {
 
     }
