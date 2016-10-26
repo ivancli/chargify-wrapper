@@ -38,6 +38,18 @@ class SubscriptionController
     }
 
     /**
+     * Create migration record
+     *
+     * @param $subscription_id
+     * @param array $fields
+     * @return Subscription|mixed
+     */
+    public function createMigration($subscription_id, array $fields = array())
+    {
+        return $this->__createMigration($subscription_id, $fields);
+    }
+
+    /**
      * Create a preview subscription
      *
      * @param array $fields
@@ -61,6 +73,18 @@ class SubscriptionController
     public function previewRenew($subscription_id)
     {
         return $this->__previewRenew($subscription_id);
+    }
+
+    /**
+     * Load preview data of migration
+     *
+     * @param $subscription_id
+     * @param array $fields
+     * @return Subscription|mixed
+     */
+    public function previewMigration($subscription_id, array $fields = array())
+    {
+        return $this->__previewMigration($subscription_id, $fields);
     }
 
     /**
@@ -203,6 +227,73 @@ class SubscriptionController
      * @param $fields
      * @return Subscription|mixed
      */
+    private function __createMigration($subscription_id, $fields)
+    {
+        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/migrations.json";
+        $data = array(
+            "migration" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $subscription = $this->_post($url, $data);
+        if (isset($subscription->subscription)) {
+            $subscription = $this->__assign($subscription->subscription);
+            $this->flushSubscriptionByCustomer($subscription->customer_id);
+        }
+        return $subscription;
+    }
+
+    /**
+     * @param $fields
+     * @return mixed|null
+     */
+    private function __preview($fields)
+    {
+        $url = config('chargify.api_url') . "subscriptions/preview.json";
+        $data = array(
+            "subscription" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $subscriptionPreview = $this->_post($url, $data);
+        if (isset($subscriptionPreview->subscription_preview)) {
+            $subscriptionPreview = $subscriptionPreview->subscription_preview;
+        }
+        return $subscriptionPreview;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|null
+     */
+    private function __previewRenew($id)
+    {
+        $url = config('chargify.api_url') . "subscriptions/{$id}/renewals/preview.json";
+        $renewalPreview = $this->_post($url);
+        if (isset($renewalPreview->renewal_preview)) {
+            $renewalPreview = $renewalPreview->renewal_preview;
+        }
+        return $renewalPreview;
+    }
+
+    private function __previewMigration($subscription_id, $fields)
+    {
+        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/migrations/preview.json";
+        $data = array(
+            "migration" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $subscription = $this->_post($url, $data);
+        if (isset($subscription->subscription)) {
+            $subscription = $this->__assign($subscription->subscription);
+            $this->flushSubscriptionByCustomer($subscription->customer_id);
+        }
+        return $subscription;
+    }
+
+    /**
+     * @param $subscription_id
+     * @param $fields
+     * @return Subscription|mixed
+     */
     private function __update($subscription_id, $fields)
     {
         $url = config('chargify.api_url') . "subscriptions/{$subscription_id}.json";
@@ -301,38 +392,6 @@ class SubscriptionController
             return true;
         }
         return $output;
-    }
-
-    /**
-     * @param $fields
-     * @return mixed|null
-     */
-    private function __preview($fields)
-    {
-        $url = config('chargify.api_url') . "subscriptions/preview.json";
-        $data = array(
-            "subscription" => $fields
-        );
-        $data = json_decode(json_encode($data), false);
-        $subscriptionPreview = $this->_post($url, $data);
-        if (isset($subscriptionPreview->subscription_preview)) {
-            $subscriptionPreview = $subscriptionPreview->subscription_preview;
-        }
-        return $subscriptionPreview;
-    }
-
-    /**
-     * @param $id
-     * @return mixed|null
-     */
-    private function __previewRenew($id)
-    {
-        $url = config('chargify.api_url') . "subscriptions/{$id}/renewals/preview.json";
-        $renewalPreview = $this->_post($url);
-        if (isset($renewalPreview->renewal_preview)) {
-            $renewalPreview = $renewalPreview->renewal_preview;
-        }
-        return $renewalPreview;
     }
 
 

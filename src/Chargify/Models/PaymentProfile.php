@@ -9,6 +9,16 @@
 namespace Invigor\Chargify\Models;
 
 
+use Invigor\Chargify\Controllers\CustomerController;
+
+/**
+ * Please check
+ * https://docs.chargify.com/api-payment-profiles
+ * for related documentation provided by Chargify
+ *
+ * Class PaymentProfile
+ * @package Invigor\Chargify\Models
+ */
 class PaymentProfile
 {
     public $id;
@@ -39,5 +49,16 @@ class PaymentProfile
     public $expiration_year;
     public $masked_card_number;
 
+    private $customerController;
+
+    public function __construct()
+    {
+        $this->customerController = new CustomerController;
+    }
+
+    public function customer()
+    {
+        return $this->customerController->get($this->customer_id);
+    }
 
 }

@@ -5,6 +5,7 @@ use Invigor\Chargify\Controllers\ComponentController;
 use Invigor\Chargify\Controllers\CouponController;
 use Invigor\Chargify\Controllers\CustomerController;
 use Invigor\Chargify\Controllers\InvoiceController;
+use Invigor\Chargify\Controllers\PaymentController;
 use Invigor\Chargify\Controllers\PaymentProfileController;
 use Invigor\Chargify\Controllers\ProductController;
 use Invigor\Chargify\Controllers\ProductFamilyController;
@@ -75,5 +76,10 @@ class Chargify
     public static function paymentProfile()
     {
         return new PaymentProfileController();
+    }
+
+    public static function payment()
+    {
+        return new PaymentController();
     }
 }

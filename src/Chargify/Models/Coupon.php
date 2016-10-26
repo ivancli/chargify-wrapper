@@ -1,11 +1,23 @@
 <?php
 
 namespace Invigor\Chargify\Models;
+
+use Invigor\Chargify\Controllers\ProductFamilyController;
+
 /**
  * Created by PhpStorm.
  * User: Ivan
  * Date: 23/10/2016
  * Time: 1:18 PM
+ */
+
+/**
+ * Please check
+ * https://docs.chargify.com/api-coupons
+ * for related documentation provided by Chargify
+ *
+ * Class Coupon
+ * @package Invigor\Chargify\Models
  */
 class Coupon
 {
@@ -27,8 +39,15 @@ class Coupon
     public $updated_at;
     public $archived_at;
 
+    private $productFamilyController;
+
     public function __construct($id = null)
     {
+        $this->productFamilyController = new ProductFamilyController;
+    }
 
+    public function productFamily()
+    {
+        return $this->productFamilyController->get($this->product_family_id);
     }
 }

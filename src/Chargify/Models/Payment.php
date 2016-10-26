@@ -1,59 +1,59 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: ivan.li
+ * Date: 10/26/2016
+ * Time: 3:49 PM
+ */
 
 namespace Invigor\Chargify\Models;
 
+
 use Invigor\Chargify\Controllers\ProductController;
 use Invigor\Chargify\Controllers\SubscriptionController;
+use Invigor\Chargify\Controllers\TransactionController;
 
 /**
- * Created by PhpStorm.
- * User: Ivan
- * Date: 23/10/2016
- * Time: 1:10 PM
- */
-
-/**
- * A Read-Only object from Chargify, created from Payment
- *
- * This class has almost everything from Payment.
- * After payment is created, payment will be converted to a transaction.
- * Therefore, payment ID is same as transaction ID
+ * A non-readable object from Chargify, used for submitting payment.
+ * After payment is created, it'll be converted to Transaction
  *
  * Please check
- * https://docs.chargify.com/api-transactions
+ * https://docs.chargify.com/api-payments
  * for related documentation provided by Chargify
  *
- * Class Transaction
+ * Class Payment
  * @package Invigor\Chargify\Models
  */
-class Transaction
+class Payment
 {
     public $id;
-    public $transaction_type;
     public $amount_in_cents;
     public $created_at;
-    public $starting_balance_in_cents;
     public $ending_balance_in_cents;
-    public $memo;
-    public $subscription_id;
-    public $product_id;
-    public $success;
-    public $payment_id;
     public $kind;
+    public $memo;
+    public $payment_id;
+    public $product_id;
+    public $starting_balance_in_cents;
+    public $subscription_id;
+    public $success;
+    public $type;
+    public $transaction_type;
     public $gateway_transaction_id;
-    public $gateway_order_id;
 
     private $subscriptionController;
     private $productController;
+    private $transactionController;
 
     public function __construct()
     {
         $this->subscriptionController = new SubscriptionController;
         $this->productController = new ProductController;
+        $this->transactionController = new TransactionController;
     }
 
     /**
-     * Load the subscription this transaction is for
+     * Load the subscription this payment is for
      *
      * @return Subscription|null
      */
@@ -63,7 +63,7 @@ class Transaction
     }
 
     /**
-     * Load the product this transaction is for
+     * Load the product this payment is for
      *
      * @return Product|null
      */
@@ -73,10 +73,14 @@ class Transaction
     }
 
     /**
-     * This method is not used and not built
+     * Load a transaction
+     *
+     * After payment is created, you can load transaction by giving payment ID (same as transaction ID)
+     *
+     * @return Transaction|mixed
      */
-    public function payment()
+    public function transaction()
     {
-        /*TODO Chargify provide payment ID but not interface to access payment*/
+        return $this->transactionController->get($this->id);
     }
 }

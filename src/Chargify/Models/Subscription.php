@@ -3,7 +3,9 @@
 namespace Invigor\Chargify\Models;
 
 use Illuminate\Support\Facades\Cache;
+use Invigor\Chargify\Controllers\ComponentController;
 use Invigor\Chargify\Controllers\CustomerController;
+use Invigor\Chargify\Controllers\NoteController;
 use Invigor\Chargify\Controllers\PaymentProfileController;
 use Invigor\Chargify\Controllers\ProductController;
 use Invigor\Chargify\Controllers\SubscriptionController;
@@ -15,6 +17,15 @@ use Invigor\Chargify\Traits\Curl;
  * User: Ivan
  * Date: 23/10/2016
  * Time: 1:10 PM
+ */
+
+/**
+ * Please check
+ * https://docs.chargify.com/api-subscriptions
+ * for related documentation provided by Chargify
+ *
+ * Class Subscription
+ * @package Invigor\Chargify\Models
  */
 class Subscription
 {
@@ -59,14 +70,21 @@ class Subscription
     private $customerController;
     private $productController;
     private $paymentProfileController;
+    private $componentController;
+    private $noteController;
 
     public function __construct()
     {
         $this->customerController = new CustomerController;
         $this->productController = new ProductController;
         $this->paymentProfileController = new PaymentProfileController;
+        $this->componentController = new ComponentController;
+        $this->noteController = new NoteController;
     }
 
+    /**
+     * @return PaymentProfile|null
+     */
     public function paymentProfile()
     {
         if (isset($this->credit_card_id)) {
@@ -78,13 +96,35 @@ class Subscription
         }
     }
 
+    /**
+     * @return Customer|mixed
+     */
     public function customer()
     {
         return $this->customerController->get($this->customer_id);
     }
 
+    /**
+     * @return Product|null
+     */
     public function product()
     {
         return $this->productController->get($this->product_id);
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function components()
+    {
+        return $this->componentController->allBySubscription($this->id);
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function notes()
+    {
+        return $this->noteController->allBySubscription($this->id);
     }
 }

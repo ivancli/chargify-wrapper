@@ -10,6 +10,15 @@ use Invigor\Chargify\Controllers\ProductFamilyController;
  * Date: 23/10/2016
  * Time: 1:12 PM
  */
+
+/**
+ * Please check
+ * https://docs.chargify.com/api-products
+ * for related documentation provided by Chargify
+ *
+ * Class Product
+ * @package Invigor\Chargify\Models
+ */
 class Product
 {
     public $id;

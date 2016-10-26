@@ -1,5 +1,6 @@
 <?php
 namespace Invigor\Chargify\Models;
+
 use Invigor\Chargify\Controllers\ProductFamilyController;
 
 /**
@@ -7,6 +8,15 @@ use Invigor\Chargify\Controllers\ProductFamilyController;
  * User: Ivan
  * Date: 23/10/2016
  * Time: 1:13 PM
+ */
+
+/**
+ * Please check
+ * https://docs.chargify.com/api-components
+ * for related documentation provided by Chargify
+ *
+ * Class Component
+ * @package Invigor\Chargify\Models
  */
 class Component
 {

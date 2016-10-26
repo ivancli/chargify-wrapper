@@ -80,7 +80,7 @@ class PaymentProfileController
     {
         $url = config('chargify.api_domain') . "payment_profiles/{$payment_profile_id}.json";
         $paymentProfile = $this->_get($url);
-        if (!is_null($paymentProfile)) {
+        if (isset($paymentProfile->payment_profile)) {
             $paymentProfile = $paymentProfile->payment_profile;
             $output = $this->__assign($paymentProfile);
             return $output;

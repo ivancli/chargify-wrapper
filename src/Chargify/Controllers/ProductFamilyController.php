@@ -18,9 +18,9 @@ class ProductFamilyController
     use Curl;
 
 
-    public function create()
+    public function create($fields)
     {
-
+        return $this->__create($fields);
     }
 
     public function archiveCoupon($product_family_id, $coupon_id)
@@ -59,6 +59,20 @@ class ProductFamilyController
         } else {
             return $this->__get($product_family_id);
         }
+    }
+
+    private function __create($fields)
+    {
+        $url = config('chargify.api_url') . "product_families.json";
+        $data = array(
+            "product_family" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $productFamily = $this->_post($url, $data);
+        if (isset($productFamily->product_family)) {
+            $productFamily = $this->__assign($productFamily->product_family);
+        }
+        return $productFamily;
     }
 
     private function __archiveCoupon($product_family_id, $coupon_id)
