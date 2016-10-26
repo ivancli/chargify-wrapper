@@ -120,7 +120,7 @@ class ProductController
      */
     private function __create($product_family_id, $fields)
     {
-        $url = config('chargify.api_url') . "product_families/{$product_family_id}/products.json";
+        $url = config('chargify.api_domain') . "product_families/{$product_family_id}/products.json";
         $data = array(
             "product" => $fields
         );
@@ -143,7 +143,7 @@ class ProductController
      */
     private function __update($product_id, $fields)
     {
-        $url = config('chargify.api_url') . "products/{$product_id}.json";
+        $url = config('chargify.api_domain') . "products/{$product_id}.json";
         $data = array(
             "product" => $fields
         );

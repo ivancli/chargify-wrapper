@@ -209,7 +209,7 @@ class SubscriptionController
      */
     private function __create($fields)
     {
-        $url = config('chargify.api_url') . "subscriptions.json";
+        $url = config('chargify.api_domain') . "subscriptions.json";
         $data = array(
             "subscription" => $fields
         );
@@ -229,7 +229,7 @@ class SubscriptionController
      */
     private function __createMigration($subscription_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/migrations.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/migrations.json";
         $data = array(
             "migration" => $fields
         );
@@ -248,7 +248,7 @@ class SubscriptionController
      */
     private function __preview($fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/preview.json";
+        $url = config('chargify.api_domain') . "subscriptions/preview.json";
         $data = array(
             "subscription" => $fields
         );
@@ -266,7 +266,7 @@ class SubscriptionController
      */
     private function __previewRenew($id)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$id}/renewals/preview.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$id}/renewals/preview.json";
         $renewalPreview = $this->_post($url);
         if (isset($renewalPreview->renewal_preview)) {
             $renewalPreview = $renewalPreview->renewal_preview;
@@ -276,7 +276,7 @@ class SubscriptionController
 
     private function __previewMigration($subscription_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/migrations/preview.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/migrations/preview.json";
         $data = array(
             "migration" => $fields
         );
@@ -296,7 +296,7 @@ class SubscriptionController
      */
     private function __update($subscription_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}.json";
         $data = array(
             "subscription" => $fields
         );

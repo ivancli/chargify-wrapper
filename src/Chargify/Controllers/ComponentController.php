@@ -113,7 +113,7 @@ class ComponentController
     private function __create($product_family_id, $plural_kind, $fields)
     {
         $url_plural_kind = str_plural($plural_kind);
-        $url = config('chargify.api_url') . "product_families/{$product_family_id}/{$url_plural_kind}.json";
+        $url = config('chargify.api_domain') . "product_families/{$product_family_id}/{$url_plural_kind}.json";
         $data = array(
             $plural_kind => $fields
         );

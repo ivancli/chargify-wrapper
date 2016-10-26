@@ -89,7 +89,7 @@ class CustomerController
 
     private function __create($fields)
     {
-        $url = config('chargify.api_url') . "customers.json";
+        $url = config('chargify.api_domain') . "customers.json";
         $data = array(
             "customer" => $fields
         );
@@ -103,7 +103,7 @@ class CustomerController
 
     private function __update($customer_id, $fields)
     {
-        $url = config('chargify.api_url') . "customers/{$customer_id}.json";
+        $url = config('chargify.api_domain') . "customers/{$customer_id}.json";
         $data = array(
             "customer" => $fields
         );
@@ -117,7 +117,7 @@ class CustomerController
 
     private function __delete($customer_id)
     {
-        $url = config('chargify.api_url') . "customers/{$customer_id}.json";
+        $url = config('chargify.api_domain') . "customers/{$customer_id}.json";
         $customer = $this->_delete($url);
         if (is_null($customer)) {
             $customer = true;
@@ -134,7 +134,7 @@ class CustomerController
 
     private function __enableBillingPortal($customer_id, $auto_invite)
     {
-        $url = config('chargify.api_url') . "portal/customers/{$customer_id}/enable.json";
+        $url = config('chargify.api_domain') . "portal/customers/{$customer_id}/enable.json";
         if ($auto_invite == true) {
             $url .= "?auto_invite=1";
         }

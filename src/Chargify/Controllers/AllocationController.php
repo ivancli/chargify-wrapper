@@ -63,7 +63,7 @@ class AllocationController
      */
     private function __create($subscription_id, $component_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/components/{$component_id}/allocations.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/components/{$component_id}/allocations.json";
         $data = array(
             "allocation" => $fields
         );
@@ -84,7 +84,7 @@ class AllocationController
      */
     private function __createMultiple($subscription_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/allocations.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/allocations.json";
         $data = $fields;
         $data = json_decode(json_encode($data), false);
         $allocations = $this->_post($url, $data);

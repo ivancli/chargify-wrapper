@@ -39,7 +39,7 @@ class NoteController
 
     private function __create($subscription_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/notes.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/notes.json";
         $data = array(
             "note" => $fields
         );
@@ -53,7 +53,7 @@ class NoteController
 
     private function __update($subscription_id, $note_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/notes/{$note_id}.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/notes/{$note_id}.json";
         $data = array(
             "note" => $fields
         );

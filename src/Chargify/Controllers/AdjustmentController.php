@@ -36,7 +36,7 @@ class AdjustmentController
      */
     private function __create($subscription_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/adjustments.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/adjustments.json";
         $data = array(
             "adjustment" => $fields
         );

@@ -46,7 +46,7 @@ class PaymentProfileController
 
     private function __create($fields)
     {
-        $url = config('chargify.api_url') . "payment_profiles.json";
+        $url = config('chargify.api_domain') . "payment_profiles.json";
         $data = array(
             "payment_profile" => $fields
         );
@@ -60,7 +60,7 @@ class PaymentProfileController
 
     private function __update($payment_profile_id, $fields)
     {
-        $url = config('chargify.api_url') . "payment_profiles/{$payment_profile_id}.json";
+        $url = config('chargify.api_domain') . "payment_profiles/{$payment_profile_id}.json";
         $data = array(
             "payment_profile" => $fields
         );

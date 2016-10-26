@@ -63,7 +63,7 @@ class ProductFamilyController
 
     private function __create($fields)
     {
-        $url = config('chargify.api_url') . "product_families.json";
+        $url = config('chargify.api_domain') . "product_families.json";
         $data = array(
             "product_family" => $fields
         );
@@ -78,7 +78,7 @@ class ProductFamilyController
     private function __archiveCoupon($product_family_id, $coupon_id)
     {
         //https://<subdomain>.chargify.com/product_families/<product_family_id>/coupons/<coupon_id>.<format>
-        $url = config('chargify.api_url') . "product_families/{$product_family_id}/coupons/{$coupon_id}.json";
+        $url = config('chargify.api_domain') . "product_families/{$product_family_id}/coupons/{$coupon_id}.json";
         $coupon = $this->_delete($url);
         if (isset($coupon->coupon)) {
             $coupon = true;

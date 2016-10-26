@@ -29,7 +29,7 @@ class PaymentController
 
     private function __create($subscription_id, $fields)
     {
-        $url = config('chargify.api_url') . "subscriptions/{$subscription_id}/payments.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/payments.json";
         $data = array(
             "payment" => $fields
         );
@@ -43,7 +43,7 @@ class PaymentController
 
     private function __createInvoicePayment($invoice_id, $fields)
     {
-        $url = config('chargify.api_url') . "invoices/{$invoice_id}/payments.json";
+        $url = config('chargify.api_domain') . "invoices/{$invoice_id}/payments.json";
         $data = array(
             "payment" => $fields
         );
