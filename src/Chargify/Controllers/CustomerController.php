@@ -11,15 +11,26 @@ namespace Invigor\Chargify\Controllers;
 
 use Illuminate\Support\Facades\Cache;
 use Invigor\Chargify\Models\Customer;
+use Invigor\Chargify\Traits\CacheFlusher;
 use Invigor\Chargify\Traits\Curl;
 
 class CustomerController
 {
-    use Curl;
+    use Curl, CacheFlusher;
 
-    public function create()
+    public function create($fields)
     {
+        return $this->__create($fields);
+    }
 
+    public function update($customer_id, $fields)
+    {
+        return $this->__update($customer_id, $fields);
+    }
+
+    public function delete($customer_id)
+    {
+        return $this->__delete($customer_id);
     }
 
     public function all()
@@ -64,6 +75,44 @@ class CustomerController
         } else {
             return $this->__getByQuery($query);
         }
+    }
+
+    private function __create($fields)
+    {
+        $url = config('chargify.api_url') . "customers.json";
+        $data = array(
+            "customer" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $customer = $this->_post($url, $data);
+        if (isset($customer->customer)) {
+            $customer = $this->__assign($customer->customer);
+        }
+        return $customer;
+    }
+
+    private function __update($customer_id, $fields)
+    {
+        $url = config('chargify.api_url') . "customers/{$customer_id}.json";
+        $data = array(
+            "customer" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $customer = $this->_put($url, $data);
+        if (isset($customer->customer)) {
+            $customer = $this->__assign($customer->customer);
+        }
+        return $customer;
+    }
+
+    private function __delete($customer_id)
+    {
+        $url = config('chargify.api_url') . "customers/{$customer_id}.json";
+        $customer = $this->_delete($url);
+        if (is_null($customer)) {
+            $customer = true;
+        }
+        return $customer;
     }
 
     private function __all()

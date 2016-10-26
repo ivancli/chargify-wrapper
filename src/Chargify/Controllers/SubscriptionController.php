@@ -13,6 +13,11 @@ use Invigor\Chargify\Traits\Curl;
  * Date: 10/24/2016
  * Time: 9:33 AM
  */
+
+/**
+ * Class SubscriptionController
+ * @package Invigor\Chargify\Controllers
+ */
 class SubscriptionController
 {
     use Curl, CacheFlusher;
@@ -70,14 +75,49 @@ class SubscriptionController
         return $this->__update($subscription_id, $fields);
     }
 
+    /**
+     * Cancel a subscription
+     *
+     * @param $subscription_id
+     * @return bool
+     */
     public function cancel($subscription_id)
     {
         return $this->__cancel($subscription_id);
     }
 
+    /**
+     * Reactivate a subscription
+     *
+     * @param $subscription_id
+     * @return Subscription|mixed
+     */
     public function reactivate($subscription_id)
     {
         return $this->__reactivate($subscription_id);
+    }
+
+    /**
+     * Add coupon code to subscription
+     *
+     * @param $subscription_id
+     * @param $coupon_code
+     * @return mixed
+     */
+    public function addCoupon($subscription_id, $coupon_code)
+    {
+        return $this->__addCoupon($subscription_id, $coupon_code);
+    }
+
+    /**
+     * Remove all coupon codes from subscription
+     *
+     * @param $subscription_id
+     * @return mixed
+     */
+    public function removeCoupon($subscription_id)
+    {
+        return $this->__removeCoupon($subscription_id);
     }
 
     /**
@@ -167,9 +207,14 @@ class SubscriptionController
         return $subscription;
     }
 
+    /**
+     * @param $subscription_id
+     * @param string $cancellation_message
+     * @return bool
+     */
     private function __cancel($subscription_id, $cancellation_message = "User action")
     {
-        $url = config('chargify.api_domain') . "subscriptions/{$this->id}.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}.json";
         $data = array(
             "subscription" => array(
                 "cancellation_message" => $cancellation_message,
@@ -181,9 +226,13 @@ class SubscriptionController
         return true;
     }
 
+    /**
+     * @param $subscription_id
+     * @return Subscription|mixed
+     */
     private function __reactivate($subscription_id)
     {
-        $url = config('chargify.api_domain') . "subscriptions/{$this->id}/reactivate.json";
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/reactivate.json";
         $subscription = $this->_put($url);
         if (isset($subscription->subscription)) {
             $subscription = $this->__assign($subscription->subscription);
@@ -191,6 +240,40 @@ class SubscriptionController
             $this->flushSubscription($subscription->id);
         }
         return $subscription;
+    }
+
+    /**
+     * @param $subscription_id
+     * @param $coupon_code
+     * @return Subscription|mixed
+     */
+    private function __addCoupon($subscription_id, $coupon_code)
+    {
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/add_coupon.json?code={$coupon_code}";
+        $subscription = $this->_post($url);
+        if (isset($subscription->subscription)) {
+            $subscription = $this->__assign($subscription->subscription);
+            $this->flushSubscriptionByCustomer($subscription->customer_id);
+            $this->flushSubscription($subscription->id);
+        }
+        return $subscription;
+    }
+
+    /**
+     * @param $subscription_id
+     * @return bool|mixed
+     */
+    private function __removeCoupon($subscription_id)
+    {
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/remove_coupon.json";
+        $output = $this->_delete($url);
+        if ($output == "Coupon removed") {
+            $subscription = $this->get($subscription_id);
+            $this->flushSubscriptionByCustomer($subscription->customer_id);
+            $this->flushSubscription($subscription->id);
+            return true;
+        }
+        return $output;
     }
 
     /**
@@ -259,7 +342,7 @@ class SubscriptionController
     {
         $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}.json";
         $subscription = $this->_get($url);
-        if (!is_null($subscription)) {
+        if (isset($subscription->subscription)) {
             $subscription = $subscription->subscription;
             $subscription = $this->__assign($subscription);
         }
