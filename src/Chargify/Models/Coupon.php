@@ -9,6 +9,7 @@ namespace Invigor\Chargify\Models;
  */
 class Coupon
 {
+    public $id;
     public $name;
     public $code;
     public $description;

@@ -141,7 +141,7 @@ class CouponController
     {
         $url = config('chargify.api_url') . "coupons/{$coupon_id}.json";
         $coupon = $this->_delete($url);
-        if (isset($coupon->coupon)) {
+        if (is_null($coupon)) {
             $coupon = true;
         }
         return $coupon;
