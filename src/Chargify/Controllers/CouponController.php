@@ -97,12 +97,61 @@ class CouponController
     }
 
     /**
+     * Load all coupon subcode of a coupon
+     *
+     * @param $coupon_id
+     * @param null $page
+     * @param null $per_page
+     * @return mixed
+     */
+    public function allSubcodes($coupon_id, $page = null, $per_page = null)
+    {
+        return $this->__allSubcodes($coupon_id, $page, $per_page);
+    }
+
+    /**
+     * Create a new coupon subcode under a coupon
+     *
+     * @param $coupon_id
+     * @param $fields
+     * @return mixed
+     */
+    public function createSubcodes($coupon_id, $fields)
+    {
+        return $this->__createSubcodes($coupon_id, $fields);
+    }
+
+    /**
+     * Update a list of coupon subcodes under a coupon
+     *
+     * @param $coupon_id
+     * @param $fields
+     * @return Coupon|mixed
+     */
+    public function updateSubcodes($coupon_id, $fields)
+    {
+        return $this->__updateSubcodes($coupon_id, $fields);
+    }
+
+    /**
+     * Delete a specific coupon subcode of a coupon
+     *
+     * @param $coupon_id
+     * @param $coupon_subcode
+     * @return bool|mixed
+     */
+    public function deleteSubcode($coupon_id, $coupon_subcode)
+    {
+        return $this->__deleteSubcode($coupon_id, $coupon_subcode);
+    }
+
+    /**
      * @param $fields
      * @return Coupon|mixed
      */
     private function __create($fields)
     {
-        $url = config('chargify.api_url') . "coupons.json";
+        $url = config('chargify.api_domain') . "coupons.json";
         $data = array(
             "coupon" => $fields
         );
@@ -121,7 +170,7 @@ class CouponController
      */
     private function __update($coupon_id, $fields)
     {
-        $url = config('chargify.api_url') . "coupons/{$coupon_id}.json";
+        $url = config('chargify.api_domain') . "coupons/{$coupon_id}.json";
         $data = array(
             "coupon" => $fields
         );
@@ -139,7 +188,7 @@ class CouponController
      */
     private function __archive($coupon_id)
     {
-        $url = config('chargify.api_url') . "coupons/{$coupon_id}.json";
+        $url = config('chargify.api_domain') . "coupons/{$coupon_id}.json";
         $coupon = $this->_delete($url);
         if (is_null($coupon)) {
             $coupon = true;
@@ -206,6 +255,73 @@ class CouponController
         }
         return $coupon;
     }
+
+    /**
+     * @param $coupon_id
+     * @param $page
+     * @param $per_page
+     * @return mixed
+     */
+    private function __allSubcodes($coupon_id, $page, $per_page)
+    {
+        $url = config('chargify.api_domain') . "coupons/{$coupon_id}/codes.json";
+        if (!is_null($page) && !is_null($per_page)) {
+            $url .= "?page={$page}&per_page={$per_page}";
+        }
+        $couponSubcodes = $this->_get($url);
+        return $couponSubcodes;
+    }
+
+    /**
+     * @param $coupon_id
+     * @param $fields
+     * @return mixed
+     */
+    private function __createSubcodes($coupon_id, $fields)
+    {
+        $url = config('chargify.api_domain') . "coupons/$coupon_id/codes.json";
+        $data = array(
+            "codes" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $coupon = $this->_post($url, $data);
+        return $coupon;
+    }
+
+    /**
+     * @param $coupon_id
+     * @param $fields
+     * @return Coupon|mixed
+     */
+    private function __updateSubcodes($coupon_id, $fields)
+    {
+        $url = config('chargify.api_domain') . "coupons/{$coupon_id}/codes.json";
+        $data = array(
+            "codes" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $coupon = $this->_put($url, $data);
+        if (isset($coupon->coupon)) {
+            $coupon = $this->__assign($coupon->coupon);
+        }
+        return $coupon;
+    }
+
+    /**
+     * @param $coupon_id
+     * @param $coupon_subcode
+     * @return bool|mixed
+     */
+    private function __deleteSubcode($coupon_id, $coupon_subcode)
+    {
+        $url = config('chargify.api_domain') . "coupons/{$coupon_id}/{$coupon_subcode}.json";
+        $coupon = $this->_delete($url);
+        if (is_null($coupon)) {
+            $coupon = true;
+        }
+        return $coupon;
+    }
+
 
     /**
      * @param $input_coupon

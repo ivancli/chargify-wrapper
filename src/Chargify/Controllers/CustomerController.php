@@ -33,6 +33,16 @@ class CustomerController
         return $this->__delete($customer_id);
     }
 
+    public function getLink($customer_id)
+    {
+        return $this->__getLink($customer_id);
+    }
+
+    public function enableBillingPortal($customer_id, $auto_invite = false)
+    {
+        return $this->__enableBillingPortal($customer_id, $auto_invite);
+    }
+
     public function all()
     {
         if (config('chargify.caching.enable') == true) {
@@ -111,6 +121,26 @@ class CustomerController
         $customer = $this->_delete($url);
         if (is_null($customer)) {
             $customer = true;
+        }
+        return $customer;
+    }
+
+    private function __getLink($customer_id)
+    {
+        $url = config('chargify.api_domain') . "portal/customers/{$customer_id}/management_link.json";
+        $billingPortal = $this->_get($url);
+        return $billingPortal;
+    }
+
+    private function __enableBillingPortal($customer_id, $auto_invite)
+    {
+        $url = config('chargify.api_url') . "portal/customers/{$customer_id}/enable.json";
+        if ($auto_invite == true) {
+            $url .= "?auto_invite=1";
+        }
+        $customer = $this->_post($url);
+        if (isset($customer->customer)) {
+            $customer = $this->__assign($customer->customer);
         }
         return $customer;
     }
