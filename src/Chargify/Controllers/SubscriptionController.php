@@ -121,6 +121,18 @@ class SubscriptionController
     }
 
     /**
+     * Remove payment profile from a subscription
+     *
+     * @param $subscription_id
+     * @param $payment_profile_id
+     * @return bool|mixed
+     */
+    public function deletePaymentProfile($subscription_id, $payment_profile_id)
+    {
+        return $this->__deletePaymentProfile($subscription_id, $payment_profile_id);
+    }
+
+    /**
      * Load subscriptions in pagination
      *
      * @param int $offset
@@ -271,6 +283,21 @@ class SubscriptionController
             $subscription = $this->get($subscription_id);
             $this->flushSubscriptionByCustomer($subscription->customer_id);
             $this->flushSubscription($subscription->id);
+            return true;
+        }
+        return $output;
+    }
+
+    /**
+     * @param $subscription_id
+     * @param $payment_profile_id
+     * @return bool|mixed
+     */
+    private function __deletePaymentProfile($subscription_id, $payment_profile_id)
+    {
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}/payment_profile/{$payment_profile_id}.json";
+        $output = $this->_delete($url);
+        if (is_null($output)) {
             return true;
         }
         return $output;

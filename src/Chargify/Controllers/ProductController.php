@@ -18,6 +18,13 @@ class ProductController
 {
     use Curl, CacheFlusher;
 
+    /**
+     * Create a product
+     *
+     * @param $product_family_id
+     * @param $fields
+     * @return Product|mixed
+     */
     public function create($product_family_id, $fields)
     {
         $validator = $this->__validate($fields);
@@ -25,6 +32,18 @@ class ProductController
             return $validator['errors'];
         }
         return $this->__create($product_family_id, $fields);
+    }
+
+    /**
+     * Update a product
+     *
+     * @param $product_id
+     * @param $fields
+     * @return Product|mixed
+     */
+    public function update($product_id, $fields)
+    {
+        return $this->__update($product_id, $fields);
     }
 
     /**
@@ -94,6 +113,11 @@ class ProductController
         }
     }
 
+    /**
+     * @param $product_family_id
+     * @param $fields
+     * @return Product|mixed
+     */
     private function __create($product_family_id, $fields)
     {
         $url = config('chargify.api_url') . "product_families/{$product_family_id}/products.json";
@@ -102,6 +126,29 @@ class ProductController
         );
         $data = json_decode(json_encode($data), false);
         $product = $this->_post($url, $data);
+        if (isset($product->product)) {
+            $output = $this->__assign($product->product);
+            $this->flushProducts();
+            $this->flushProductFamilyProducts($output->product_family_id);
+            return $output;
+        } else {
+            return $product;
+        }
+    }
+
+    /**
+     * @param $product_id
+     * @param $fields
+     * @return Product|mixed
+     */
+    private function __update($product_id, $fields)
+    {
+        $url = config('chargify.api_url') . "products/{$product_id}.json";
+        $data = array(
+            "product" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $product = $this->_put($url, $data);
         if (isset($product->product)) {
             $output = $this->__assign($product->product);
             $this->flushProducts();
@@ -208,6 +255,10 @@ class ProductController
         return $product;
     }
 
+    /**
+     * @param $fields
+     * @return array
+     */
     private function __validate($fields)
     {
         $status = true;

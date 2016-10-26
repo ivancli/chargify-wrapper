@@ -17,9 +17,14 @@ class PaymentProfileController
 {
     use Curl;
 
-    public function create()
+    public function create($fields)
     {
+        return $this->__create($fields);
+    }
 
+    public function update($payment_profile_id, $fields)
+    {
+        return $this->__update($payment_profile_id, $fields);
     }
 
     /**
@@ -37,6 +42,34 @@ class PaymentProfileController
         } else {
             return $this->__get($payment_profile_id);
         }
+    }
+
+    private function __create($fields)
+    {
+        $url = config('chargify.api_url') . "payment_profiles.json";
+        $data = array(
+            "payment_profile" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $paymentProfile = $this->_post($url, $data);
+        if (isset($paymentProfile->payment_profile)) {
+            $paymentProfile = $this->__assign($paymentProfile->payment_profile);
+        }
+        return $paymentProfile;
+    }
+
+    private function __update($payment_profile_id, $fields)
+    {
+        $url = config('chargify.api_url') . "payment_profiles/{$payment_profile_id}.json";
+        $data = array(
+            "payment_profile" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $paymentProfile = $this->_put($url, $data);
+        if (isset($paymentProfile->payment_profile)) {
+            $paymentProfile = $this->__assign($paymentProfile->payment_profile);
+        }
+        return $paymentProfile;
     }
 
     /**
