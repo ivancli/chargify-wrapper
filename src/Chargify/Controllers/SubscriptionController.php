@@ -157,6 +157,22 @@ class SubscriptionController
     }
 
     /**
+     * Force override data of a subscription
+     *
+     * @param $subscription_id
+     * @param $fields
+     *
+     * available fields:
+     * activated_at, canceled_at, cancellation_message, expires_at
+     *
+     * @return mixed
+     */
+    public function override($subscription_id, $fields)
+    {
+        return $this->__override($subscription_id, $fields);
+    }
+
+    /**
      * Load subscriptions in pagination
      *
      * @param int $offset
@@ -394,6 +410,22 @@ class SubscriptionController
         return $output;
     }
 
+    /**
+     * @param $subscription_id
+     * @param $fields
+     * @return mixed
+     */
+    public function __override($subscription_id, $fields)
+    {
+        $url = config('chargify.api_domain') . "subscriptions/{$subscription_id}.json";
+        $data = array(
+            "subscription" => $fields
+        );
+        $data = json_decode(json_encode($data), false);
+        $result = $this->_put($url, json_encode($data));
+        $this->flushSubscription($subscription_id);
+        return $result;
+    }
 
     /**
      * @param $offset
